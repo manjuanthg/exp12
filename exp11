@@ -1,0 +1,75 @@
+class BSTList:
+    def __init__(self):
+        self.tree = []
+    
+    def insert(self, key):
+        if not self.tree:
+            self.tree.append(key)
+        else:
+            self._insert_recursive(0, key)
+    
+    def _insert_recursive(self, idx, key):
+        if key <= self.tree[idx]:
+            if 2*idx + 1 < len(self.tree) and self.tree[2*idx + 1] is not None:
+                self._insert_recursive(2*idx + 1, key)
+            else:
+                self.tree.insert(2*idx + 1, key)
+        else:
+            if 2*idx + 2 < len(self.tree) and self.tree[2*idx + 2] is not None:
+                self._insert_recursive(2*idx + 2, key)
+            else:
+                self.tree.insert(2*idx + 2, key)
+    
+    def search(self, key):
+        idx = 0
+        while idx < len(self.tree):
+            if self.tree[idx] == key:
+                return True
+            elif key < self.tree[idx]:
+                idx = 2*idx + 1
+            else:
+                idx = 2*idx + 2
+        return False
+    
+    def delete(self, key):
+        if key in self.tree:
+            idx = self.tree.index(key)
+            self._delete_recursive(idx)
+            return True
+        else:
+            return False
+    
+    def _delete_recursive(self, idx):
+        # Case 1: Leaf node
+        if 2*idx + 1 >= len(self.tree) or (self.tree[2*idx + 1] is None and self.tree[2*idx + 2] is None):
+            del self.tree[idx]
+        # Case 2: Node with one child
+        elif self.tree[2*idx + 1] is None:
+            self.tree[idx] = None
+            self._delete_recursive(2*idx + 2)
+        elif self.tree[2*idx + 2] is None:
+            self.tree[idx] = None
+            self._delete_recursive(2*idx + 1)
+        # Case 3: Node with two children
+        else:
+            min_right_subtree_idx = self._find_min_index(2*idx + 2)
+            self.tree[idx] = self.tree[min_right_subtree_idx]
+            self.tree[min_right_subtree_idx] = None
+            self._delete_recursive(min_right_subtree_idx)
+    
+    def _find_min_index(self, idx):
+        while self.tree[idx * 2 + 1] is not None:
+            idx = idx * 2 + 1
+        return idx
+    
+    def inorder_traversal(self):
+        traversal = []
+        self._inorder_recursive(0, traversal)
+        return traversal
+    
+    def _inorder_recursive(self, idx, traversal):
+        if idx < len(self.tree):
+            self._inorder_recursive(2*idx + 1, traversal)
+            if self.tree[idx] is not None:
+                traversal.append(self.tree[idx])
+            self._inorder_recursive(2*idx + 2, traversal)
